@@ -643,16 +643,6 @@ export default function AdminPanel() {
                 <span>Verify & Open Desk</span>
               </button>
             </form>
-
-            <div className="mt-8 p-4 rounded-lg border border-bronze/15 bg-bronze/5 max-w-xs mx-auto text-[11px] leading-relaxed text-muted space-y-1">
-              <span className="font-mono font-bold text-bronze uppercase flex items-center gap-1">
-                <HelpCircle className="w-3.5 h-3.5" />
-                <span>DEVELOPER ACCESS</span>
-              </span>
-              <p>
-                The secure login passcode is <code className="font-mono font-bold text-charcoal select-all px-1 bg-white border rounded">arivu2026</code>. Enter this code to manage content.
-              </p>
-            </div>
           </div>
 
           <div className="p-4 bg-gray-100 text-center text-[10px] font-mono text-muted select-none border-t">
