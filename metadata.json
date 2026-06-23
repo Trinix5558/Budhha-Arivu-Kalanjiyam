@@ -1,0 +1,6 @@
+{
+  "name": "Buddha Arivu Kalanjiyam",
+  "description": "A high-fidelity, premium website for Buddha Arivu Kalanjiyam, featuring a serene earthy aesthetic, education gallery of events, value pillars, About Us section, Founder biography, and secure interactive donation forms.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Oswald:wght@600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #FBF9F6;
+  --color-cream-card: #FFFFFF;
+  --color-cream-dark: #F3ECE3;
+  --color-bronze: #C28E53;
+  --color-bronze-dark: #AA763D;
+  --color-bronze-light: #DFC8A5;
+  --color-charcoal: #2C2A28;
+  --color-muted: #5A5550;
+  --color-earth: #3A312A;
+  --color-earth-dark: #27201B;
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Lora', 'Playfair Display', Georgia, serif;
+  --font-caps: 'Oswald', 'Inter', system-ui, sans-serif;
+  --font-cinzel: 'Cinzel', Georgia, serif;
+  --font-arial: 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-charcoal);
+  }
+}
+
+/* Custom Glassmorphism styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.glass-panel-dark {
+  background: rgba(58, 49, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Subtle pulse for active elements */
+.pulse-light {
+  animation: pulse-glow 3s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(194, 142, 83, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(194, 142, 83, 0.3);
+  }
+}
