@@ -250,132 +250,251 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [valuePillars, setValuePillars] = useState<ValuePillar[]>(VALUE_PILLARS);
   const [statistics, setStatistics] = useState<StatItem[]>(STATISTICS);
 
-  // Load from localStorage on mount
+  // Load from server and localStorage on mount
   useEffect(() => {
-    try {
-      const savedLogo = localStorage.getItem("buddha_logo_url");
-      if (savedLogo) setLogoUrl(savedLogo);
+    const loadConfig = async () => {
+      try {
+        const response = await fetch("/api/config");
+        if (response.ok) {
+          const config = await response.json();
+          if (config && Object.keys(config).length > 0) {
+            // Apply all config fields from server
+            if (config.logoUrl) setLogoUrl(config.logoUrl);
+            if (config.buddhaUrl) setBuddhaUrl(config.buddhaUrl);
+            if (config.founderInfo) setFounderInfo(config.founderInfo);
+            if (config.initiatives) setInitiatives(config.initiatives);
+            if (config.galleryFolders) setGalleryFolders(config.galleryFolders);
+            if (config.initiativeCategories) setInitiativeCategories(config.initiativeCategories);
+            if (config.galleryCategories) setGalleryCategories(config.galleryCategories);
+            
+            if (config.heroTagline) setHeroTagline(config.heroTagline);
+            if (config.heroHeadline) setHeroHeadline(config.heroHeadline);
+            if (config.heroDescription) setHeroDescription(config.heroDescription);
+            if (config.heroQuote) setHeroQuote(config.heroQuote);
+            if (config.heroQuoteAuthor) setHeroQuoteAuthor(config.heroQuoteAuthor);
 
-      const savedBuddha = localStorage.getItem("buddha_hero_url");
-      if (savedBuddha) setBuddhaUrl(savedBuddha);
+            if (config.aboutImage) setAboutImage(config.aboutImage);
+            if (config.aboutCaption) setAboutCaption(config.aboutCaption);
+            if (config.aboutHeadline) setAboutHeadline(config.aboutHeadline);
+            if (config.aboutParagraph1) setAboutParagraph1(config.aboutParagraph1);
+            if (config.aboutParagraph2) setAboutParagraph2(config.aboutParagraph2);
+            if (config.aboutStoryTitle) setAboutStoryTitle(config.aboutStoryTitle);
+            if (config.aboutStoryContent) setAboutStoryContent(config.aboutStoryContent);
+            if (config.aboutStoryTags) setAboutStoryTags(config.aboutStoryTags);
 
-      const savedFounder = localStorage.getItem("buddha_founder_info");
-      if (savedFounder) setFounderInfo(JSON.parse(savedFounder));
+            if (config.newsList) setNewsList(config.newsList);
 
-      const savedInitiatives = localStorage.getItem("buddha_initiatives");
-      if (savedInitiatives) {
-        setInitiatives(JSON.parse(savedInitiatives));
-      } else {
-        const list = [...INITIATIVES];
-        if (list[0]) list[0].category = "Sponsorships";
-        if (list[1]) list[1].category = "Training";
-        if (list[2]) list[2].category = "Technology";
-        if (list[3]) list[3].category = "Outreach";
-        setInitiatives(list);
-      }
+            if (config.contactAddress) setContactAddress(config.contactAddress);
+            if (config.contactPhone) setContactPhone(config.contactPhone);
+            if (config.contactEmail) setContactEmail(config.contactEmail);
+            if (config.contactHours) setContactHours(config.contactHours);
+            if (config.contactRegNo) setContactRegNo(config.contactRegNo);
+            if (config.contactLatitude) setContactLatitude(config.contactLatitude);
+            if (config.contactLongitude) setContactLongitude(config.contactLongitude);
 
-      const savedGallery = localStorage.getItem("buddha_gallery_folders");
-      if (savedGallery) setGalleryFolders(JSON.parse(savedGallery));
-
-      const savedInitiativeCats = localStorage.getItem("buddha_initiative_categories");
-      if (savedInitiativeCats) setInitiativeCategories(JSON.parse(savedInitiativeCats));
-
-      const savedGalleryCats = localStorage.getItem("buddha_gallery_categories");
-      if (savedGalleryCats) setGalleryCategories(JSON.parse(savedGalleryCats));
-
-      const savedAuth = sessionStorage.getItem("buddha_is_authenticated");
-      if (savedAuth === "true") setIsAuthenticated(true);
-
-      // Load new content fields
-      const savedHero = localStorage.getItem("buddha_hero_content");
-      if (savedHero) {
-        const parsed = JSON.parse(savedHero);
-        if (parsed.heroTagline) setHeroTagline(parsed.heroTagline);
-        if (parsed.heroHeadline) setHeroHeadline(parsed.heroHeadline);
-        if (parsed.heroDescription) setHeroDescription(parsed.heroDescription);
-        if (parsed.heroQuote) setHeroQuote(parsed.heroQuote);
-        if (parsed.heroQuoteAuthor) setHeroQuoteAuthor(parsed.heroQuoteAuthor);
-      }
-
-      const savedAbout = localStorage.getItem("buddha_about_content");
-      if (savedAbout) {
-        const parsed = JSON.parse(savedAbout);
-        if (parsed.aboutImage) setAboutImage(parsed.aboutImage);
-        if (parsed.aboutCaption) setAboutCaption(parsed.aboutCaption);
-        if (parsed.aboutHeadline) setAboutHeadline(parsed.aboutHeadline);
-        if (parsed.aboutParagraph1) setAboutParagraph1(parsed.aboutParagraph1);
-        if (parsed.aboutParagraph2) setAboutParagraph2(parsed.aboutParagraph2);
-        if (parsed.aboutStoryTitle) setAboutStoryTitle(parsed.aboutStoryTitle);
-        if (parsed.aboutStoryContent) setAboutStoryContent(parsed.aboutStoryContent);
-        if (parsed.aboutStoryTags) setAboutStoryTags(parsed.aboutStoryTags);
-      }
-
-      const savedNews = localStorage.getItem("buddha_news_list");
-      if (savedNews) setNewsList(JSON.parse(savedNews));
-
-      const savedContact = localStorage.getItem("buddha_contact_details");
-      if (savedContact) {
-        const parsed = JSON.parse(savedContact);
-        // Seamlessly migrate legacy Bangalore/Delhi/Arupathy defaults to Archana Castle, St.Thomas Mount coordinates
-        if (parsed.contactLatitude === "12.9716" || parsed.contactLatitude === "11.09633" || parsed.contactAddress?.includes("123 Peace Avenue") || parsed.contactAddress?.includes("Arupathy village")) {
-          parsed.contactLatitude = "13.0042";
-          parsed.contactLongitude = "80.1948";
-          parsed.contactAddress = "Archana Castle, Ramapuram Road, Parangi Malai, St.Thomas Mount, Chennai, Tamil Nadu 600016";
-          localStorage.setItem("buddha_contact_details", JSON.stringify(parsed));
+            if (config.valuePillars) setValuePillars(config.valuePillars);
+            if (config.statistics) setStatistics(config.statistics);
+            
+            // Also sync to localStorage just in case
+            Object.keys(config).forEach(key => {
+              const val = config[key];
+              if (typeof val === 'string') {
+                localStorage.setItem(`buddha_${key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, val);
+              } else {
+                localStorage.setItem(`buddha_${key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)}`, JSON.stringify(val));
+              }
+            });
+            return;
+          }
         }
-        if (parsed.contactAddress) setContactAddress(parsed.contactAddress);
-        if (parsed.contactPhone) setContactPhone(parsed.contactPhone);
-        if (parsed.contactEmail) setContactEmail(parsed.contactEmail);
-        if (parsed.contactHours) setContactHours(parsed.contactHours);
-        if (parsed.contactRegNo) setContactRegNo(parsed.contactRegNo);
-        if (parsed.contactLatitude) setContactLatitude(parsed.contactLatitude);
-        if (parsed.contactLongitude) setContactLongitude(parsed.contactLongitude);
+      } catch (err) {
+        console.error("Failed to load configuration from server, falling back to localStorage", err);
       }
 
-      const savedPillars = localStorage.getItem("buddha_value_pillars");
-      if (savedPillars) setValuePillars(JSON.parse(savedPillars));
+      // Fallback to localStorage if server loading failed or returned empty
+      try {
+        const savedLogo = localStorage.getItem("buddha_logo_url");
+        if (savedLogo) setLogoUrl(savedLogo);
 
-      const savedStats = localStorage.getItem("buddha_statistics");
-      if (savedStats) setStatistics(JSON.parse(savedStats));
+        const savedBuddha = localStorage.getItem("buddha_hero_url");
+        if (savedBuddha) setBuddhaUrl(savedBuddha);
 
-    } catch (e) {
-      console.error("Failed loading admin assets from localStorage:", e);
-    }
+        const savedFounder = localStorage.getItem("buddha_founder_info");
+        if (savedFounder) setFounderInfo(JSON.parse(savedFounder));
+
+        const savedInitiatives = localStorage.getItem("buddha_initiatives");
+        if (savedInitiatives) {
+          setInitiatives(JSON.parse(savedInitiatives));
+        } else {
+          const list = [...INITIATIVES];
+          if (list[0]) list[0].category = "Sponsorships";
+          if (list[1]) list[1].category = "Training";
+          if (list[2]) list[2].category = "Technology";
+          if (list[3]) list[3].category = "Outreach";
+          setInitiatives(list);
+        }
+
+        const savedGallery = localStorage.getItem("buddha_gallery_folders");
+        if (savedGallery) setGalleryFolders(JSON.parse(savedGallery));
+
+        const savedInitiativeCats = localStorage.getItem("buddha_initiative_categories");
+        if (savedInitiativeCats) setInitiativeCategories(JSON.parse(savedInitiativeCats));
+
+        const savedGalleryCats = localStorage.getItem("buddha_gallery_categories");
+        if (savedGalleryCats) setGalleryCategories(JSON.parse(savedGalleryCats));
+
+        // Load new content fields
+        const savedHero = localStorage.getItem("buddha_hero_content");
+        if (savedHero) {
+          const parsed = JSON.parse(savedHero);
+          if (parsed.heroTagline) setHeroTagline(parsed.heroTagline);
+          if (parsed.heroHeadline) setHeroHeadline(parsed.heroHeadline);
+          if (parsed.heroDescription) setHeroDescription(parsed.heroDescription);
+          if (parsed.heroQuote) setHeroQuote(parsed.heroQuote);
+          if (parsed.heroQuoteAuthor) setHeroQuoteAuthor(parsed.heroQuoteAuthor);
+        }
+
+        const savedAbout = localStorage.getItem("buddha_about_content");
+        if (savedAbout) {
+          const parsed = JSON.parse(savedAbout);
+          if (parsed.aboutImage) setAboutImage(parsed.aboutImage);
+          if (parsed.aboutCaption) setAboutCaption(parsed.aboutCaption);
+          if (parsed.aboutHeadline) setAboutHeadline(parsed.aboutHeadline);
+          if (parsed.aboutParagraph1) setAboutParagraph1(parsed.aboutParagraph1);
+          if (parsed.aboutParagraph2) setAboutParagraph2(parsed.aboutParagraph2);
+          if (parsed.aboutStoryTitle) setAboutStoryTitle(parsed.aboutStoryTitle);
+          if (parsed.aboutStoryContent) setAboutStoryContent(parsed.aboutStoryContent);
+          if (parsed.aboutStoryTags) setAboutStoryTags(parsed.aboutStoryTags);
+        }
+
+        const savedNews = localStorage.getItem("buddha_news_list");
+        if (savedNews) setNewsList(JSON.parse(savedNews));
+
+        const savedContact = localStorage.getItem("buddha_contact_details");
+        if (savedContact) {
+          const parsed = JSON.parse(savedContact);
+          if (parsed.contactLatitude === "12.9716" || parsed.contactLatitude === "11.09633" || parsed.contactAddress?.includes("123 Peace Avenue") || parsed.contactAddress?.includes("Arupathy village")) {
+            parsed.contactLatitude = "13.0042";
+            parsed.contactLongitude = "80.1948";
+            parsed.contactAddress = "Archana Castle, Ramapuram Road, Parangi Malai, St.Thomas Mount, Chennai, Tamil Nadu 600016";
+            localStorage.setItem("buddha_contact_details", JSON.stringify(parsed));
+          }
+          if (parsed.contactAddress) setContactAddress(parsed.contactAddress);
+          if (parsed.contactPhone) setContactPhone(parsed.contactPhone);
+          if (parsed.contactEmail) setContactEmail(parsed.contactEmail);
+          if (parsed.contactHours) setContactHours(parsed.contactHours);
+          if (parsed.contactRegNo) setContactRegNo(parsed.contactRegNo);
+          if (parsed.contactLatitude) setContactLatitude(parsed.contactLatitude);
+          if (parsed.contactLongitude) setContactLongitude(parsed.contactLongitude);
+        }
+
+        const savedPillars = localStorage.getItem("buddha_value_pillars");
+        if (savedPillars) setValuePillars(JSON.parse(savedPillars));
+
+        const savedStats = localStorage.getItem("buddha_statistics");
+        if (savedStats) setStatistics(JSON.parse(savedStats));
+
+      } catch (e) {
+        console.error("Failed loading admin assets from localStorage:", e);
+      }
+    };
+
+    loadConfig();
+
+    const savedAuth = sessionStorage.getItem("buddha_is_authenticated");
+    if (savedAuth === "true") setIsAuthenticated(true);
   }, []);
+
+  const saveConfigToServer = async (updates: any) => {
+    try {
+      const currentConfig = {
+        logoUrl: updates.logoUrl !== undefined ? updates.logoUrl : logoUrl,
+        buddhaUrl: updates.buddhaUrl !== undefined ? updates.buddhaUrl : buddhaUrl,
+        founderInfo: updates.founderInfo !== undefined ? updates.founderInfo : founderInfo,
+        initiatives: updates.initiatives !== undefined ? updates.initiatives : initiatives,
+        galleryFolders: updates.galleryFolders !== undefined ? updates.galleryFolders : galleryFolders,
+        initiativeCategories: updates.initiativeCategories !== undefined ? updates.initiativeCategories : initiativeCategories,
+        galleryCategories: updates.galleryCategories !== undefined ? updates.galleryCategories : galleryCategories,
+        
+        heroTagline: updates.heroTagline !== undefined ? updates.heroTagline : heroTagline,
+        heroHeadline: updates.heroHeadline !== undefined ? updates.heroHeadline : heroHeadline,
+        heroDescription: updates.heroDescription !== undefined ? updates.heroDescription : heroDescription,
+        heroQuote: updates.heroQuote !== undefined ? updates.heroQuote : heroQuote,
+        heroQuoteAuthor: updates.heroQuoteAuthor !== undefined ? updates.heroQuoteAuthor : heroQuoteAuthor,
+
+        aboutImage: updates.aboutImage !== undefined ? updates.aboutImage : aboutImage,
+        aboutCaption: updates.aboutCaption !== undefined ? updates.aboutCaption : aboutCaption,
+        aboutHeadline: updates.aboutHeadline !== undefined ? updates.aboutHeadline : aboutHeadline,
+        aboutParagraph1: updates.aboutParagraph1 !== undefined ? updates.aboutParagraph1 : aboutParagraph1,
+        aboutParagraph2: updates.aboutParagraph2 !== undefined ? updates.aboutParagraph2 : aboutParagraph2,
+        aboutStoryTitle: updates.aboutStoryTitle !== undefined ? updates.aboutStoryTitle : aboutStoryTitle,
+        aboutStoryContent: updates.aboutStoryContent !== undefined ? updates.aboutStoryContent : aboutStoryContent,
+        aboutStoryTags: updates.aboutStoryTags !== undefined ? updates.aboutStoryTags : aboutStoryTags,
+
+        newsList: updates.newsList !== undefined ? updates.newsList : newsList,
+
+        contactAddress: updates.contactAddress !== undefined ? updates.contactAddress : contactAddress,
+        contactPhone: updates.contactPhone !== undefined ? updates.contactPhone : contactPhone,
+        contactEmail: updates.contactEmail !== undefined ? updates.contactEmail : contactEmail,
+        contactHours: updates.contactHours !== undefined ? updates.contactHours : contactHours,
+        contactRegNo: updates.contactRegNo !== undefined ? updates.contactRegNo : contactRegNo,
+        contactLatitude: updates.contactLatitude !== undefined ? updates.contactLatitude : contactLatitude,
+        contactLongitude: updates.contactLongitude !== undefined ? updates.contactLongitude : contactLongitude,
+
+        valuePillars: updates.valuePillars !== undefined ? updates.valuePillars : valuePillars,
+        statistics: updates.statistics !== undefined ? updates.statistics : statistics,
+      };
+
+      await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(currentConfig),
+      });
+    } catch (e) {
+      console.error("Failed to save configuration to server:", e);
+    }
+  };
 
   const updateLogoUrl = (url: string) => {
     setLogoUrl(url);
     localStorage.setItem("buddha_logo_url", url);
+    saveConfigToServer({ logoUrl: url });
   };
 
   const updateBuddhaUrl = (url: string) => {
     setBuddhaUrl(url);
     localStorage.setItem("buddha_hero_url", url);
+    saveConfigToServer({ buddhaUrl: url });
   };
 
   const updateFounderInfo = (info: FounderInfo) => {
     setFounderInfo(info);
     localStorage.setItem("buddha_founder_info", JSON.stringify(info));
+    saveConfigToServer({ founderInfo: info });
   };
 
   const updateInitiatives = (items: InitiativeItem[]) => {
     setInitiatives(items);
     localStorage.setItem("buddha_initiatives", JSON.stringify(items));
+    saveConfigToServer({ initiatives: items });
   };
 
   const updateGalleryFolders = (folders: GalleryFolder[]) => {
     setGalleryFolders(folders);
     localStorage.setItem("buddha_gallery_folders", JSON.stringify(folders));
+    saveConfigToServer({ galleryFolders: folders });
   };
 
   const updateInitiativeCategories = (cats: string[]) => {
     setInitiativeCategories(cats);
     localStorage.setItem("buddha_initiative_categories", JSON.stringify(cats));
+    saveConfigToServer({ initiativeCategories: cats });
   };
 
   const updateGalleryCategories = (cats: string[]) => {
     setGalleryCategories(cats);
     localStorage.setItem("buddha_gallery_categories", JSON.stringify(cats));
+    saveConfigToServer({ galleryCategories: cats });
   };
 
   // Updaters for new fields
@@ -393,6 +512,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     setHeroQuote(updated.heroQuote);
     setHeroQuoteAuthor(updated.heroQuoteAuthor);
     localStorage.setItem("buddha_hero_content", JSON.stringify(updated));
+    saveConfigToServer(updated);
   };
 
   const updateAboutContent = (content: { aboutImage?: string; aboutCaption?: string; aboutHeadline?: string; aboutParagraph1?: string; aboutParagraph2?: string; aboutStoryTitle?: string; aboutStoryContent?: string; aboutStoryTags?: string }) => {
@@ -415,11 +535,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     setAboutStoryContent(updated.aboutStoryContent);
     setAboutStoryTags(updated.aboutStoryTags);
     localStorage.setItem("buddha_about_content", JSON.stringify(updated));
+    saveConfigToServer(updated);
   };
 
   const updateNewsList = (list: NewsItem[]) => {
     setNewsList(list);
     localStorage.setItem("buddha_news_list", JSON.stringify(list));
+    saveConfigToServer({ newsList: list });
   };
 
   const updateContactDetails = (details: { contactAddress?: string; contactPhone?: string; contactEmail?: string; contactHours?: string; contactRegNo?: string; contactLatitude?: string; contactLongitude?: string }) => {
@@ -440,16 +562,19 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     setContactLatitude(updated.contactLatitude);
     setContactLongitude(updated.contactLongitude);
     localStorage.setItem("buddha_contact_details", JSON.stringify(updated));
+    saveConfigToServer(updated);
   };
 
   const updateValuePillars = (list: ValuePillar[]) => {
     setValuePillars(list);
     localStorage.setItem("buddha_value_pillars", JSON.stringify(list));
+    saveConfigToServer({ valuePillars: list });
   };
 
   const updateStatistics = (list: StatItem[]) => {
     setStatistics(list);
     localStorage.setItem("buddha_statistics", JSON.stringify(list));
+    saveConfigToServer({ statistics: list });
   };
 
   const resetToDefaults = () => {
@@ -513,6 +638,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
     setValuePillars(VALUE_PILLARS);
     setStatistics(STATISTICS);
+
+    // Also tell server to reset configuration
+    fetch("/api/config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    }).catch(err => console.error("Failed to reset config on server:", err));
   };
 
   const exportConfigJSON = () => {
@@ -602,6 +734,13 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
       if (config.valuePillars) updateValuePillars(config.valuePillars);
       if (config.statistics) updateStatistics(config.statistics);
+
+      // Save complete imported configuration to the server immediately
+      fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(config),
+      }).catch(err => console.error("Failed to sync imported config to server:", err));
 
       return true;
     } catch (e) {
